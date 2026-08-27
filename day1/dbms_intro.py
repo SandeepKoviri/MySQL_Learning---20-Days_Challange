@@ -81,6 +81,10 @@ Limitations of FMS
 
 to overcome the above problems of file systems we should go for database
 
+-----DBMS-----
+Intro for DBMS
+===============
+
 DBMS(Database Management System)
 ________________________________
 A DBMS is a collection of program that enables users to create , manage, and manipulate databases
@@ -142,9 +146,7 @@ Database: organized collection of related records stored together
 example: an employee database containing all employee record
 
 
------DBMS-----
-Intro for MySQL
-===============
+
 
 
 '''
