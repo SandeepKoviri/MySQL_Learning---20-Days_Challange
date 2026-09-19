@@ -1,0 +1,149 @@
+Data Redundancy:
+----------------
+-->Data redundancy means storing the same data multiple times unnecessarily in a database.
+
+Problems caused by Data Redundancy:
+-----------------------------------
+Wastes storage -->The same information is stored repeatedly.
+Data inconsistency --> If the instructor's name changes from Kumar to Raj, we may need to update it in many places.
+Update anomaly --> Forgetting to update one occurrence can create conflicting information.
+Insert anomaly --> Sometimes we cannot add information without adding unrelated data.
+Delete anomaly --> Deleting one record might accidentally remove the only information about something else.
+
+How to reduce Data Redundancy?
+------------------------------
+-->We use Normalization.
+-->Instead of storing everything in one table, separate the data into related tables.
+
+Normalization:
+--------------
+Normalization is the process of organizing data in a database to:
+✅ Reduce data redundancy (duplicate data)
+✅ Avoid data inconsistency
+✅ Prevent insert, update, and delete anomalies
+✅ Make the database easier to maintain
+
+Simple definition for interviews:
+----------------------------------
+--> Normalization is a database design technique that divides large tables into smaller related tables and establishes
+    relationships between them to reduce data redundancy and improve data integrity.
+
+⭐ Normal Forms:
+Normalization is generally explained through different Normal Forms:
+
+1NF
+ ↓
+2NF
+ ↓
+3NF
+ ↓
+BCNF
+
+1️⃣ First Normal Form — 1NF Rule:
+==============================
+A table is in 1NF when:
+Each column contains atomic/single values
+There are no repeating groups
+Each row can be uniquely identified
+
+❌ Not in 1NF
+Student_ID	Name	Courses
+101		Ravi	Python, SQL
+102		Priya	Java, Python
+
+✅ In 1NF
+Student_ID	Name	Course
+101		Ravi	Python
+101		Ravi	SQL
+102		Priya	Java
+102		Priya	Python
+
+2️⃣ Second Normal Form — 2NF:
+===========================
+A table must:
+✅ Already be in 1NF
+✅ Have no partial dependency
+
+This concept is important when we have a composite primary key.[PRIMARY KEY = Student_ID + Course_ID]
+
+✅ After 2NF
+
+Students Table:
+
+Student_ID	Student_Name
+101		Ravi
+102		Priya
+
+Courses Table:
+
+Course_ID	Course_Name
+1		Python
+2		SQL
+
+Enrollment Table:
+
+Student_ID	Course_ID
+101		1
+101		2
+102		1
+
+Now we have removed partial dependency.
+Remember: 2NF = 1NF + No Partial Dependency
+
+3️⃣ Third Normal Form — 3NF:
+==========================
+A table must:
+✅ Already be in 2NF
+✅ Have no transitive dependency
+
+This sounds complicated, but the idea is simple.
+
+Consider:
+
+Student_ID	Student_Name	Dept_ID		Dept_Name
+101		Ravi		10		Computer Science
+102		Priya		10		Computer Science
+103		Arjun		20		Mechanical
+
+✅ After 3NF
+
+Students Table
+
+Student_ID	Student_Name	Dept_ID
+101		Ravi		10
+102		Priya		10
+103		Arjun		20
+
+Departments
+
+Dept_ID	Dept_Name
+10	Computer Science
+20	Mechanical
+
+Now department information is stored separately.
+Remember: 3NF = 2NF + No Transitive Dependency
+
+🧠 Easy Way to Remember
+Normal Form	Main Rule			Easy Memory
+1NF		Atomic values			One cell → One value
+2NF		Remove partial dependency	Depend on the whole key
+3NF		Remove transitive dependency	Depend on nothing but the key
+
+
+ER MODEL:
+---------
+-->ER Model stands for Entity–Relationship Model.
+-->It is a conceptual model used to design a database by representing:
+
+Entities → Things/objects
+Attributes → Properties of those things
+Relationships → How entities are connected
+
+Simple definition for an interview:
+-->An ER model is a visual representation of entities, their attributes, and the relationships between entities in a database.
+
+1. Entity --> An entity is a real-world object or concept about which we want to store information.
+
+2. Attribute --> An attribute describes the properties of an entity.
+
+3. Relationship --> A relationship describes how two or more entities are connected.
