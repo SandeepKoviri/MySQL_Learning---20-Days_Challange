@@ -1,0 +1,294 @@
+Stored Procedures
+------------------
+--> a stored procedure is a named, precompiled collection of one or more SQL statements that is stored inside the database and can be executed(called) whenever required. instead of sending a long block of sql code from an appicatiom every time, the application simply calls the procedure by name.
+
+why use stored procedures:
+--------------------------
+performance : precompiled and cached by the database engine,so repeated execution is faster then sending raw SQL each time
+
+Reusability: write the logic once, call it from many applications or scripts.
+
+Security: users can granted execute permission on a procedure without granting direct ACCESSED TO THE underlying tables.
+
+Reduced Network traffic: a single call statement replaces many lines of SQL sent over the network.
+
+Maintainability:
+
+Consistency:
+
+CREATE PROCEDURE SYNTAX:
+------------------------
+
+DELIMITER //
+CREATE PROCEDURE PROCEDURE_NAME(
+	[IN|OUT|INOUT] PARAMETR_NAME DATA_TYPE,.......
+)
+BEGIN
+	--------SQL STATEMENTS/LOGIC
+	--------DECLARATIONS, CONDITIONS, LOOPS..ETC
+END//
+DELIMITER;
+
+ADVANTAGES:
+-----------
+faster execution after compliation
+reduced duplication sql
+supports transactions, loops, conditions, variables, curors and exception handlers.
+easy maintence.
+
+DISADVANTAGES:
+--------------
+Debugging can be difficult
+vendor specific syntax
+complex procedures may become hard to maintain.
+
+IN PARAMETER:
+-------------
+DEFINITION: AN IN parameter is used to pass a value into stored procedure.
+	
+The procedure can use the value, but changes made to the parameter inside the procedure not returned the caller.
+
+syntax:
+-------
+DLIMITER
+create procedure procedure_name(IN parameter_name datatype)
+BEGIN
+	sql statements
+END //
+
+OUT PARAMETER:
+-------------
+DEFINITION: AN OUT PARAMETER IS USED TO RETURN A VALUE FROM THE STORED PROCEDURE TO THE CALLER.
+THE CALLER PROVIDES A VARIABLE TO RECEVIE THE RESULT
+
+SYNTAX:
+-------
+CREATE PROCEDURE PROCEDURE_NAME(OUT PARAMETER_NAME DATATYPE)
+BEGIN
+SET PARAMTER_NAME = VALUE;
+END
+
+
+
+mysql> USE COMPANUDB;
+ERROR 1049 (42000): Unknown database 'companudb'
+mysql> USE COMPANYDB;
+Database changed
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE GETEMPLOYEEBYID(IN EID INT)
+    -> BEGIN
+    ->          SELECT * FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END
+    -> //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> CALL GETEMPLOYEEBYID(105);
++--------+----------+------------+----------+------------+-----------+------+
+| emp_id | emp_name | department | salary   | experience | city      | age  |
++--------+----------+------------+----------+------------+-----------+------+
+|    105 | Priya    | Finance    | 60000.00 |          6 | Bangalore |   32 |
++--------+----------+------------+----------+------------+-----------+------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE GETEMPLOYEEBYDEPT(IN DEPT VARCHAR(50))
+    -> BEGIN
+    ->          SELECT * FROM EMPLOYEES WHERE DEPARTMENT = DEPT;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> CALL GETEMPLOYEEBYDEPT('IT');
++--------+----------+------------+----------+------------+-----------+------+
+| emp_id | emp_name | department | salary   | experience | city      | age  |
++--------+----------+------------+----------+------------+-----------+------+
+|    101 | Ravi     | IT         | 45000.00 |          2 | Hyderabad |   24 |
+|    103 | Suresh   | IT         | 55000.00 |          5 | Hyderabad |   30 |
+|    106 | Sneha    | IT         | 50000.00 |          4 | Vizag     |   28 |
+|    110 | Manoj    | IT         | 70000.00 |          8 | Hyderabad |   35 |
++--------+----------+------------+----------+------------+-----------+------+
+4 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE GETEMPLOYEESBYSALARY(IN MINSALARY DECIMAL(10,2),IN MAXSALARY DECIMAL(10,2))
+    -> BEGIN
+    -> SELECT * FROM EMPLOYEES WHERE SALARY > MINSALARY AND SALARY < MAXSALARY;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> CALL GETEMPLOYEESBYSALARY(40000,60000);
++--------+----------+------------+----------+------------+-----------+------+
+| emp_id | emp_name | department | salary   | experience | city      | age  |
++--------+----------+------------+----------+------------+-----------+------+
+|    101 | Ravi     | IT         | 45000.00 |          2 | Hyderabad |   24 |
+|    103 | Suresh   | IT         | 55000.00 |          5 | Hyderabad |   30 |
+|    106 | Sneha    | IT         | 50000.00 |          4 | Vizag     |   28 |
+|    107 | Rahul    | HR         | 42000.00 |          2 | Hyderabad |   25 |
++--------+----------+------------+----------+------------+-----------+------+
+4 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE TOTAL_EMPLOYEES(OUT TOTAL INT)
+    -> BEGIN
+    -> SELECT COUNT(*) INTO TOTAL FROM EMPLOYEES;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> SET @TOTAL=0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL TOTAL_EMPLOYEES(@TOTAL);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT @TOTAL;
++--------+
+| @TOTAL |
++--------+
+|     10 |
++--------+
+1 row in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE MAXSALARYEMPLOYEE(OUT MAX_SALARY DECIMAL(7,2))
+    -> BEGIN
+    -> SELECT MAX(SALARY) INTO MAX_SALARY FROM EMPLOYEES;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> SET @MAX_SALARY = 0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL MAXSALARYEMPLOYEE(@MAX_SALARY);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT @MAX_SALARY;
++-------------+
+| @MAX_SALARY |
++-------------+
+|    70000.00 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE EMPLOYEE_SALARY(IN EID , OUT EMP_SAL DECIMAL(10,2))
+    -> BEGIN
+    -> SELECT SALARY INTO EMP_SAL FROM EMPLOYEES WHERE EMP_ID = EID
+    -> END //
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ', OUT EMP_SAL DECIMAL(10,2))
+BEGIN
+SELECT SALARY INTO EMP_SAL FROM EMPLOYEES WHE' at line 1
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE EMPLOYEE_SALARY(IN EID INT, OUT EMP_SAL DECIMAL(10,2))
+    -> BEGIN
+    -> SELECT SALARY INTO EMP_SAL FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> SET @EMP_SALARY = 0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL EMPLOYEE_SALARY(105,@EMP_SALARY)
+    -> CALL EMPLOYEE_SALARY(105,@EMP_SALARY);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'CALL EMPLOYEE_SALARY(105,@EMP_SALARY)' at line 2
+mysql> CALL EMPLOYEE_SALARY(105,@EMP_SALARY);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT @EMP_SALARY;
++-------------+
+| @EMP_SALARY |
++-------------+
+|    60000.00 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE SALARY_INCREMENT(IN EID INT, OUT EMP_SALARY DECIMAL(10,2))
+    -> BEGIN
+    -> UPDATE SALARY INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END //
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID;
+END' at line 3
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE SALARY_INCREMENT(IN EID INT, OUT EMP_SALARY DECIMAL(10,2))
+    -> BEGIN
+    -> UPDATE SET SALARY=SALARY+(SALARY*0.1) INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END //
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SET SALARY=SALARY+(SALARY*0.1) INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID' at line 3
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE SALARY_INCREMENT(IN EID INT, OUT EMP_SALARY DECIMAL(10,2))
+    -> BEGIN
+    -> UPDATE SET SALARY=SALARY+(SALARY*0.1) INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END /
+    -> /
+    -> ^C
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE SALARY_INCREMENT(IN EID INT, OUT EMP_SALARY DECIMAL(10,2))
+    -> BEGIN
+    -> SELECT SALARY=SALARY+(SALARY*0.1) INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> SET @EMP_SAL = 0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL SALARY_INCREMENT(102,@EMP_SAL);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT @EMP_SAL;
++----------+
+| @EMP_SAL |
++----------+
+|     0.00 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> CALL SALARY_INCREMENT(105,@EMP_SAL);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT @EMP_SAL;
++----------+
+| @EMP_SAL |
++----------+
+|     0.00 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE SALARY_INCREMENTBYID(IN EID INT, OUT EMP_SALARY DECIMAL(10,2))
+    -> BEGIN
+    -> SELECT SALARY+(SALARY*0.1) INTO EMP_SALARY FROM EMPLOYEES WHERE EMP_ID = EID;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> SET EMP_SAL =0;
+ERROR 1193 (HY000): Unknown system variable 'EMP_SAL'
+mysql> DELIMITER ;
+mysql> SET @EMP_SAL = 0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL SALARY_INCREMENTBYID(105,@EMP_SAL);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT @EMP_SAL;
++----------+
+| @EMP_SAL |
++----------+
+| 66000.00 |
++----------+
+1 row in set (0.00 sec)
+
+mysql>
+
